@@ -793,6 +793,12 @@ properties:
                             name: 'disabled'
                             description: |
                               If true, specifies the CORS policy is disabled. The default value is false, which indicates that the CORS policy is in effect.
+                      - !ruby/object:Api::Type::String
+                        name: wasmAction
+                        description: |
+                          The name of the WasmAction resource, allowing executing a customer-provided Wasm module.
+                          WasmActions must be defined in the same project.
+                        diff_suppress_func: 'tpgresource.CompareSelfLinkOrResourceName'
                   - !ruby/object:Api::Type::String
                     name: origin
                     description: |
