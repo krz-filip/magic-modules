@@ -1,0 +1,87 @@
+# Copyright 2023 Google Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+--- !ruby/object:Api::Resource
+name: WasmPluginVersion
+references: !ruby/object:Api::Resource::ReferenceLinks
+create_url: projects/{{project}}/locations/global/wasmPlugins/{{plugin_id}}/versions?wasm_plugin_version_id={{name}}
+base_url: projects/{{project}}/locations/global/wasmPlugins/{{plugin_id}}/versions
+self_link: projects/{{project}}/locations/global/wasmPlugins/{{plugin_id}}/versions/{{name}}
+immutable: true
+async: !ruby/object:Api::OpAsync
+  operation: !ruby/object:Api::OpAsync::Operation
+    path: 'name'
+    base_url: '{{op_id}}'
+    wait_ms: 1000
+    timeouts: !ruby/object:Api::Timeouts
+      insert_minutes: 60
+      update_minutes: 60
+      delete_minutes: 60
+  result: !ruby/object:Api::OpAsync::Result
+    path: 'response'
+  status: !ruby/object:Api::OpAsync::Status
+    path: 'done'
+    complete: true
+    allowed:
+      - true
+      - false
+  error: !ruby/object:Api::OpAsync::Error
+    path: 'error'
+    message: 'message'
+autogen_async: true
+description: TBD.
+import_format:
+  [
+    'projects/{{project}}/locations/global/wasmPlugins/{{plugin_id}}/versions/{{name}}',
+  ]
+properties:
+  # - !ruby/object:Api::Type::String
+  #   name: name
+  #   output: true
+  #   description: |-
+  #     The resource name of the game server config, in the form:
+
+  #     `projects/{project_id}/locations/global/wasmPlugins/{plugin_id}/versions/{version_id}`.
+  - !ruby/object:Api::Type::String
+    name: name
+    immutable: true
+    required: true
+    url_param_only: true
+    description: |
+      A unique version id.
+  - !ruby/object:Api::Type::String
+    name: imageUri
+    immutable: true
+    required: true
+    description: |
+      Image URI.
+  - !ruby/object:Api::Type::ResourceRef
+    name: pluginId
+    resource: 'WasmPlugin'
+    imports: 'name'
+    immutable: true
+    required: true
+    url_param_only: true
+    description: |
+      A unique id for the parent plugin.
+  - !ruby/object:Api::Type::String
+    name: description
+    description: The description of the game server config.
+  - !ruby/object:Api::Type::KeyValuePairs
+    name: labels
+    description: |-
+      The labels associated with this game server config. Each label is a
+      key-value pair.
+
+
+
