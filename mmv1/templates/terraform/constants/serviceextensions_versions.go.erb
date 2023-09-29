@@ -1,0 +1,41 @@
+/////////////////// constants/serviceextensions_versions.go.erb START
+
+const KEY_PLUGIN_VERSIONS = "versions2"
+const KEY_MAIN_VERSION = "main_version_id"
+
+func resourceServiceExtensionsVersionDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	log.Printf("[DEBUG] resourceServiceExtensionsVersionDiffSuppress k:%v, %v vs %v", k, old, new)
+
+	return strings.ToUpper(old) == strings.ToUpper(new)
+}
+
+func resourceServiceExtensionsCreatePluginVersion(pluginUrl string, version interface{}, userAgent string) error {
+	url := fmt.Sprintf("%s/versions?wasm_plugin_version_id=%s", pluginUrl, version.(map[string]string)["name"])
+	log.Printf("[DEBUG] resourceServiceExtensionsCreatePluginVersion %q %#v", url, version)
+	return nil
+}
+
+func resourceServiceExtensionsDeletePluginVersion(pluginUrl string, versionId string, userAgent string) error {
+	log.Printf("[DEBUG] resourceServiceExtensionsDeletePluginVersion %q %q", pluginUrl, versionId)
+	return nil
+}
+
+func resourceServiceExtensionsUpdatePluginMainVersion(pluginUrl string, mainVersion string, userAgent string) error {
+	log.Printf("[DEBUG] resourceServiceExtensionsUpdatePluginMainVersion %q %#v", pluginUrl, mainVersion)
+	return nil
+}
+
+func remapToNames(src *schema.Set) map[string]interface{} {
+	res := map[string]interface{}{}
+	for _, item := range src.List() {
+		itemMap := item.(map[string]interface{})
+		name, ok := itemMap["name"].(string)
+		//terraform diff prodeces sometimes fake records with empty all fields.
+		if ok && name != "" {
+			res[name] = itemMap
+		}
+	}
+	return res
+}
+
+/////////////////// constants/serviceextensions_versions.go.erb END

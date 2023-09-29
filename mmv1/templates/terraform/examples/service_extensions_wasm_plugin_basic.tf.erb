@@ -1,0 +1,4 @@
+resource "service_extensions_wasm_plugin" "<%= ctx[:primary_resource_id] %>" {
+  name                 = "<%= ctx[:vars]['resource_name'] %>"
+  description          = "The sample Wasm Plugin resource"
+}

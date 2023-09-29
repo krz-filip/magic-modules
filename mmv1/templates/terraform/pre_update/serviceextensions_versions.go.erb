@@ -1,0 +1,77 @@
+	/////////////////// pre_update/serviceextensions_versions.go.erb START
+
+	log.Printf("[DEBUG] KFKF pre-update %#v", d)
+	// newSchema := ResourceServiceExtensionsWasmPlugin().Data(d.State())
+	// if err = resourceServiceExtensionsWasmPluginRead(newSchema, meta); err != nil {
+	// 	return err
+	// }
+	oldMainVersionAny, newMainVersionAny := d.GetChange(KEY_MAIN_VERSION)
+	oldMainVersion := oldMainVersionAny.(string)
+	newMainVersion := newMainVersionAny.(string)
+	log.Printf("[DEBUG] KFKF change main-ver %v - %v", oldMainVersion, newMainVersion)
+
+	oldVersions, newVersions := d.GetChange(KEY_PLUGIN_VERSIONS)
+	log.Printf("[DEBUG] KFKF change versions %#v - %#v", oldVersions, newVersions)
+	toDelete := oldVersions.(*schema.Set).Difference(newVersions.(*schema.Set))
+	toAdd := newVersions.(*schema.Set).Difference(oldVersions.(*schema.Set))
+	//toDelete := maps.Clone(oldVersions.(map[string]interface{}))
+	//maps.DeleteFunc(toDelete, func(k string, v interface{}) bool { return newVersions.(map[string]interface{})[k] != nil })
+	log.Printf("[DEBUG] KFKF to delete %#v", toDelete)
+	log.Printf("[DEBUG] KFKF to add %#v", toAdd)
+	//log.Printf("[DEBUG] KFKF v1:%v v2:%v", oldVersions.(*schema.Set).F("v1"), oldVersions.(*schema.Set).F("v2"))
+	// isModifiedMain
+	// toDelete,toDeleteLater
+	// toAdd, toAddLater
+
+	//TODO:
+	// remap to "name"
+	toDeleteMap := remapToNames(toDelete)
+	toDeleteLater, ok := toDeleteMap[oldMainVersion]
+	if ok {
+		delete(toDeleteMap, oldMainVersion)
+	}
+	log.Printf("[DEBUG] to delete later: %#v, now: %#v", toDeleteLater, toDeleteMap)
+	toAddMap := remapToNames(toAdd)
+	toAddLater, ok := toAddMap[oldMainVersion]
+	if ok {
+		delete(toAddMap, oldMainVersion)
+	}
+	log.Printf("[DEBUG] to add later: %#v, now: %#v", toAddLater, toAddMap)
+	//
+	// toDelete = all removed, but not current main
+	// toDeleteLater = removed current main
+	// TBD: toDeleteLater == new main
+	// toAdd = all new, but not toAddLater
+	// toAddLater = modified version marked as main
+	//
+	// 1. toDelete+toAdd
+	// 2. standard update (* or with temp. main ver.)
+	// 3. toDeleteLater+toAddLater
+	// 4. if toAddLater -> repeat updateMainVersion
+
+	// remove KEY_PLUGIN_VERSIONS from updateMask
+	for index := range updateMask {
+		if updateMask[index] == KEY_PLUGIN_VERSIONS {
+			updateMask = append(updateMask[:index], updateMask[index+1:]...)
+			break
+		}
+	}
+
+	// update URL with the new updateMask.
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
+	if err != nil {
+		return err
+	}
+
+	versions, ok := obj[KEY_PLUGIN_VERSIONS]
+	if ok {
+		delete(obj, KEY_PLUGIN_VERSIONS)
+	}
+
+	log.Printf("[DEBUG] KFKF pre-update updateMask %#v, %#v", updateMask, versions)
+
+	if 1 == 1 {
+		return fmt.Errorf("TODO")
+	}
+
+	/////////////////// pre_update/serviceextensions_versions.go.erb END
